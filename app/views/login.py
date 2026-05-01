@@ -1,13 +1,13 @@
 import flet as ft
 from app.auth import iniciar_sesion
-from app.theme import ACCENT_RED
+import app.theme as th
 
 def login_view(page, navegar, volver):
     
-    texto_email = ft.TextField(label="Email", width=300)
-    texto_password = ft.TextField(label="Contraseña", width=300, password=True)
+    texto_email = ft.TextField(label="Email", label_style=ft.TextStyle(color=th.TEXT_PRIMARY), bgcolor=th.BG_PRIMARY, width=300)
+    texto_password = ft.TextField(label="Contraseña", label_style=ft.TextStyle(color=th.TEXT_PRIMARY), bgcolor=th.BG_PRIMARY, width=300, password=True)
 
-    mensaje_error = ft.Text("", color=ACCENT_RED, visible=False, text_align=ft.TextAlign.CENTER)
+    mensaje_error = ft.Text("", color=th.ACCENT_RED, visible=False, text_align=ft.TextAlign.CENTER)
 
 
     def validar_login(e):
@@ -25,28 +25,30 @@ def login_view(page, navegar, volver):
             mensaje_error.visible = True
             page.update()
 
-    boton_inicio = ft.ElevatedButton(text="Iniciar sesión", width=300, on_click= validar_login)
+    boton_inicio = ft.ElevatedButton(ft.Text("Iniciar sesión"), width=300, bgcolor=th.BG_SECONDARY, color=th.TEXT_PRIMARY, on_click= validar_login)
 
     texto_pregunta = ft.Text("¿No tienes una cuenta?")
     # Aquí usamos lambda para no tener que crear una función 'ir_a_registro' aparte
-    boton_registro = ft.TextButton(text="Registrarse", on_click=lambda _: navegar("register"))
+    boton_registro = ft.TextButton(ft.Text("Registrarse", color= th.TEXT_PRIMARY), on_click=lambda _: navegar("register"))
 
     return ft.Container(
         content=ft.Column(
             controls=[
-                ft.Text("Iniciar sesión", size=24, weight="bold"),
+                ft.Text("Iniciar sesión", size=24, color=th.TEXT_PRIMARY, weight="bold"),
                 texto_email,
                 texto_password,
                 mensaje_error,
                 boton_inicio,
                 ft.Row([texto_pregunta, boton_registro], alignment=ft.MainAxisAlignment.CENTER)
             ],
-            # alinear los elementos horizontalmente en el centro
+            # alinear los elementos 
+            alignment=ft.MainAxisAlignment.CENTER,
             horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-            spacing=20
+            spacing=20,
+            expand=True
         ),
         #centrar el contenido en la pantalla
-        alignment=ft.alignment.center,
+        alignment=ft.Alignment(0, 0),
         expand=True
     )
 

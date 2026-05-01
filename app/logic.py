@@ -1,11 +1,11 @@
 # Aca se implementarán las funciones para manejar la lógica de la aplicación de presupuesto personal.
 # Estas funciones se encargarán de procesar los datos, realizar cálculos y preparar la información para ser mostrada en la interfaz de usuario.
 
-from database import obtener_transacciones
-from database import obtener_cuentas
-from database import obtener_presupuestos
-from database import obtener_categorias
-from database import obtener_objetivos_ahorro
+from app.database import obtener_transacciones
+from app.database import obtener_cuentas
+from app.database import obtener_presupuestos
+from app.database import obtener_categorias
+from app.database import obtener_objetivos_ahorro
 
 def obtener_resumen(user_id, month):
 
@@ -121,8 +121,8 @@ def obtener_resumen_ahorro(user_id):
 
             "id": a["id"],
             "nombre_objetivo": a["name"],
-            "target_amount": target_amount,
-            "current_amount": current_amount,
+            "target_amount": target_amount,# el monto objetivo de ahorro que el usuario se ha propuesto alcanzar
+            "current_amount": current_amount,# el monto actual que el usuario ha ahorrado hasta el momento para ese objetivo
             "porcentaje": porcentaje,
             "falta": falta,
             "completado": porcentaje >= 100

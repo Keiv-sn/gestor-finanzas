@@ -1,8 +1,8 @@
-from database import verificar_password
-from database import obtener_usuario_email    
+from app.database import verificar_password
+from app.database import obtener_usuario_email    
 import json
 from pathlib import Path
-from database import APP_DIR, obtener_usuario_por_id
+from app.database import APP_DIR, obtener_usuario_por_id
 
 current_user = None
 SESSION_PATH = APP_DIR/"session.json"

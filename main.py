@@ -5,16 +5,18 @@ from app.views.login import login_view
 from app.views.add_transaction import add_transaction_view
 from app.views.transactions import transactions_view
 from app.views.budgets import budgets_view
+from app.views.register import register_view
 import flet as ft
-import app.theme as theme
+import app.theme as th
 
 
 
 def main(page: ft.Page):
 
-    page.scroll = ft.ScrollMode.AUTO
+    #page.scroll = ft.ScrollMode.AUTO # Esta en veremos hace que le login se vea pegado arriba 
+    
 
-    page.bgcolor = theme.BG_PRIMARY        # de theme.py
+    page.bgcolor = th.BG_PRIMARY        # de theme.py
     page.padding = 0
     page.window_width = 400
     page.window_height = 750
@@ -29,6 +31,8 @@ def main(page: ft.Page):
         page.controls.clear()
         if nombre_vista == "login":
             page.add(login_view(page, navegar, volver))
+        elif nombre_vista == "register":
+            page.add(register_view(page, navegar, volver))
         elif nombre_vista == "dashboard":
             page.add(dashboard_view(page, navegar, volver))
         elif nombre_vista == "add_transaction":
@@ -45,7 +49,7 @@ def main(page: ft.Page):
     def navegar(nombre_vista, limpiar=False):
         if limpiar:
             historial.clear()
-        #
+
         if not historial or historial[-1] != nombre_vista:
             historial.append(nombre_vista)
         _cargar_vista(nombre_vista)
@@ -69,6 +73,6 @@ def main(page: ft.Page):
 
 
 if __name__ == "__main__":
-    ft.app(target=main)
+    ft.run(main)
         
         
