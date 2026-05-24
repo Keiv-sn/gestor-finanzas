@@ -1,11 +1,13 @@
 from app.auth import obtener_usuario_activo
-from app.components import navbar, grafico_gastos
-from app.logic import formatear_moneda, obtener_gastos_por_categoria, obtener_resumen, obtener_resumen_ahorro
+from app.components import navbar, grafico_gastos, fila_transaccion
+from app.logic import obtener_gastos_por_categoria, obtener_resumen, obtener_resumen_ahorro
 from app.utils import obtener_mes_actual
 from app.database import obtener_transacciones
+from app.utils import formatear_moneda
 import flet as ft
 import flet_charts as fch
 import app.theme as th
+
 
 
 def dashboard_view(page, navegar, volver):
@@ -15,6 +17,9 @@ def dashboard_view(page, navegar, volver):
     resumen = obtener_resumen(usuario["id"], mes)
     ahorros = obtener_resumen_ahorro(usuario["id"])
     gastos = obtener_gastos_por_categoria(usuario["id"], mes)
+
+    transacciones = obtener_transacciones(user_id=usuario["id"], month=mes)
+    ultimas = transacciones[:5]  # últimas 5
 
     top_gastos = gastos[:4] # obtenemos solo las 4 categorías con más gastos para mostrar en el gráfico
 
@@ -27,7 +32,8 @@ def dashboard_view(page, navegar, volver):
         
         # Este es el contenedor que REEMPLAZA al ft.Text
         bloque_ahorro = ft.Container(
-            bgcolor=th.BG_SECONDARY,
+            expand=True,
+            bgcolor=th.ACCENT_RED,
             border_radius=th.BORDER_RADIUS,
             padding=th.PADDING_MD,
             content=ft.Column([
@@ -44,10 +50,11 @@ def dashboard_view(page, navegar, volver):
                     border_radius=10,
                     height=8
                 )
-            ], spacing=8)
+            ], spacing=8),
+
         )
     else:
-        bloque_ahorro = ft.Container(content=ft.Text("Sin objetivos activos", color=th.TEXT_SECONDARY))
+        bloque_ahorro = ft.Container(content=ft.Text("", color=th.TEXT_SECONDARY))
 
     #Contenido dashboard(bento)
 
@@ -58,12 +65,14 @@ def dashboard_view(page, navegar, volver):
             
             
             ft.Container(
+                expand=True,
+                bgcolor=th.BG_SECONDARY,
+                border_radius=th.BORDER_RADIUS, 
+                padding=th.PADDING_MD,
                 content=ft.Column([
                     ft.Text("Balance Total", size=th.FONT_SIZE_MD, color=th.TEXT_SECONDARY),
-                    ft.Text(formatear_moneda(resumen["saldo_total_cuentas"]), size=th.FONT_SIZE_XL, color=th.ACCENT_YELLOW)]),
-                        bgcolor=th.BG_SECONDARY,
-                        border_radius=th.BORDER_RADIUS, 
-                        padding=th.PADDING_MD
+                    ft.Text(formatear_moneda(resumen["saldo_total_cuentas"]), size=th.FONT_SIZE_XL, color=th.ACCENT_YELLOW)
+                    ], spacing=2)
             ),
 
 
@@ -79,7 +88,7 @@ def dashboard_view(page, navegar, volver):
                     border_radius=th.BORDER_RADIUS,
                     padding=th.PADDING_SM,
                     content=ft.Column([
-                        ft.Text("Gastos por categoría", size=th.FONT_SIZE_MD, color=th.TEXT_SECONDARY),
+                        ft.Text("Gastos por categoría", size=th.FONT_SIZE_SM, color=th.TEXT_SECONDARY),
                         ft.Container(
                             height=100, # Altura fija para la gráfica
                             content=fch.PieChart(
@@ -110,9 +119,14 @@ def dashboard_view(page, navegar, volver):
                     border_radius=th.BORDER_RADIUS,
                     padding=th.PADDING_SM,
                     content=ft.Column([
-                        ft.Text("Transacciones recientes", size=th.FONT_SIZE_MD, color=th.TEXT_SECONDARY),
-
-
+                        ft.Text("Transacciones recientes", size=th.FONT_SIZE_SM, color=th.TEXT_SECONDARY),
+                         ft.ListView(
+                             
+                             controls=[fila_transaccion(t) for t in ultimas],
+                             spacing=10,
+                             expand=True
+                             
+                         )
                         ])
                         
                 ),
@@ -125,8 +139,9 @@ def dashboard_view(page, navegar, volver):
         ],
 
         scroll=ft.ScrollMode.AUTO,
-        expand=True,
-        spacing=10
+        expand=1,
+        spacing=10,
+        horizontal_alignment=ft.CrossAxisAlignment.STRETCH
     )
 
     # Devuelves el Stack que junta ambos componentes
@@ -141,10 +156,12 @@ def dashboard_view(page, navegar, volver):
                 
                 # LA NAVBAR: Posicionada con 'bottom=0' para que flote siempre abajo
                 ft.Container(
-                    content=navbar(page, navegar),
+                    content=navbar(navegar, "dashboard"),
+                    alignment=ft.Alignment.CENTER,
                     bottom=0,
                     left=0,
-                    right=0
+                    right=0,
+                    height=60,
                 )
             ],
             expand=True

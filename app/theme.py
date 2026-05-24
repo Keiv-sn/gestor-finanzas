@@ -21,7 +21,9 @@ FONT_SIZE_LG    = 20
 FONT_SIZE_XL    = 28
 
 # Espaciado y bordes
-BORDER_RADIUS   = 12
+BORDER_RADIUS   = 8
 PADDING_SM      = 8
 PADDING_MD      = 16
 PADDING_LG      = 24
+
+FONT = "Sans Serif"

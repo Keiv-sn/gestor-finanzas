@@ -18,11 +18,21 @@ def main(page: ft.Page):
 
     page.bgcolor = th.BG_PRIMARY        # de theme.py
     page.padding = 0
-    page.window_width = 400
-    page.window_height = 750
+    page.window.width = 350
+    page.window.height = 680
+    page.padding = 0
 
     page.title = "Gestor de Finanzas Personales"
     init_db()
+
+    page.locale_configuration = ft.LocaleConfiguration(
+        current_locale=ft.Locale("es", "ES"),
+        supported_locales=[
+            ft.Locale("es", "ES"),
+            ft.Locale("en", "US")
+        ]
+    )
+    page.update()
 
     historial = []
 
@@ -76,3 +86,5 @@ if __name__ == "__main__":
     ft.run(main)
         
         
+#python main.py
+#flet run -r

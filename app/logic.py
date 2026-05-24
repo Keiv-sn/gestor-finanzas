@@ -61,12 +61,6 @@ def obtener_estado_presupuesto(user_id, month):
     return resultado
 
 
-    
-
-
-def formatear_moneda(amount):# Podria ir en utils.py, pero como es una función muy usada, la dejo acá por ahora.
-    return f"${amount:,.0f}".replace(",", ".")
-
 
 
 def obtener_gastos_por_categoria(user_id, month):

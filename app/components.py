@@ -1,68 +1,69 @@
 import flet as ft
 import flet_charts as fch
-from app.logic import formatear_moneda
-from app.theme import BG_PRIMARY,BG_SECONDARY, ACCENT_YELLOW,TEXT_SECONDARY, ACCENT_GREEN
+from app.theme import BG_PRIMARY,BG_SECONDARY,TEXT_SECONDARY, ACCENT_GREEN,TEXT_PRIMARY
 import app.theme as th
+from app.utils import formatear_moneda
 
 
 
 def navbar(navegar, vista_activa):
-
-    def crear_boton(icono, etiqueta, ruta, especial=False):
-
-        # El color del icono cambia si está activo
+    
+    def crear_boton(icono_path: str, etiqueta, ruta, especial=False):
         es_activo = vista_activa == ruta
-        color_icono = ACCENT_YELLOW if es_activo else TEXT_SECONDARY
-        color_texto = ACCENT_YELLOW if es_activo else TEXT_SECONDARY
+        color_icono = ACCENT_GREEN if es_activo else TEXT_PRIMARY
+        color_texto = ACCENT_GREEN if es_activo else TEXT_PRIMARY
 
-        # El botón especial (el "+") tiene un diseño diferente
         if especial:
             return ft.Container(
-                content=ft.Icon(icono, color="white", size=24),
+                content=ft.Image(src=icono_path,width=32,height=32,fit="contain", color=TEXT_SECONDARY),
                 bgcolor=ACCENT_GREEN,
-                width=50,
-                height=50,
-                border_radius=25,
+                width=45,
+                height=45,
+                border_radius=20,
                 alignment=ft.Alignment(0, 0),
-                shadow=ft.BoxShadow(blur_radius=10, color=f"{th.BG_PRIMARY}4D"),
-                on_click=lambda evento, dest=ruta: navegar(dest),
-                margin=ft.margin.only(bottom=20)
+                shadow=ft.BoxShadow(blur_radius=100, color="#00000050"),
+                on_click=lambda e, dest=ruta: navegar(dest),
+                ink=True,
             )
-        
-        # Para los botones normales, el fondo cambia si están activos
+
+        # Botones normales
+
         return ft.Container(
             content=ft.Column(
                 [
-                    ft.Icon(icono, color=color_icono),
-                    ft.Text(etiqueta, color=color_texto, size=10)
+                    ft.Image(src=icono_path,width=20,height=20,fit="contain", color=color_icono),
+                    ft.Text(etiqueta, color=color_texto, size=10, weight="w500")
                 ],
-                alignment=ft.Alignment(0, 0),
+                alignment=ft.MainAxisAlignment.CENTER,
                 horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-                spacing=1
+                spacing=3,
             ),
+            padding=ft.Padding.symmetric(vertical=8),
+            border_radius=th.BORDER_RADIUS,
+            bgcolor=BG_SECONDARY,
             expand=True,
-            on_click=lambda _, e=ruta: navegar(e)
+            ink=True,                    # ← importante para feedback visual
+            on_click=lambda _, dest=ruta: navegar(dest),
         )
-    
-
 
     return ft.Container(
-            bgcolor=BG_SECONDARY,
-            height=80,
-            padding=ft.padding.only(left=10, right=10, bottom=15),
-            border_radius=ft.border_radius.only(top_left=25, top_right=25),
-            content=ft.Row(
-                [
-                    crear_boton("home", "Dashboard", "dashboard"),
-                    crear_boton("receipt_long", "transacciones", "transactions"),
-                    crear_boton("add", "+", "add_transaction", especial=True),
-                    crear_boton("account_balance_wallet", "Presupuestos", "budgets"), # aca podemos agregar barras graficas laterales
-                    crear_boton("settings", "Más", "settings")
-                ],
-                alignment=ft.MainAxisAlignment.SPACE_EVENLY,
-                vertical_alignment=ft.CrossAxisAlignment.CENTER,
-                spacing=10
-            
+        bgcolor=BG_SECONDARY,
+        height=50,
+        padding=ft.padding.only(left=3, right=3, bottom=2, top=2),
+        border_radius=ft.border_radius.all(20),
+        
+        content=ft.Row(
+            [
+                crear_boton("assets/icons/home.png", "Inicio", "dashboard"),
+                crear_boton("assets/icons/transacciones.png", "Transacciones", "transactions"),
+                crear_boton("assets/icons/add.png", "+", "add_transaction", especial=True),
+                crear_boton("assets/icons/presupuestos.png", "Presupuestos", "budgets"),
+                crear_boton("assets/icons/settings.png", "Más", "settings")
+            ],
+            alignment=ft.MainAxisAlignment.SPACE_AROUND,
+            vertical_alignment=ft.CrossAxisAlignment.CENTER,
+            spacing=0,
+            expand=True,
         ),
     )
 
@@ -107,6 +108,48 @@ def grafico_gastos(gastos):
         "nombres": nombres_cat,
         "porcentajes": porcentajes_cat
     }
+
+
+
+def fila_transaccion(t):
+
+    es_ingreso = t["transaction_type"] == "ingreso"
+    color_monto = th.ACCENT_GREEN if es_ingreso else th.ACCENT_RED
+    signo = "+" if es_ingreso else "-"
+
+    return ft.Row(
+        [
+            ft.Column(
+                [
+                    ft.Text(t["description"], color=th.TEXT_PRIMARY, size=th.FONT_SIZE_SM),
+                    ft.Text(f"{signo}{formatear_moneda(t['amount'])}", color=color_monto, size=th.FONT_SIZE_SM)
+                ]
+            ),
+            ft.Column(
+                [
+                    ft.Text(signo, color= color_monto, size= th.FONT_SIZE_MD,text_align=ft.TextAlign.RIGHT,weight="w600",)
+                ]
+            
+            )
+        ],
+        alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+        vertical_alignment=ft.CrossAxisAlignment.CENTER
+    )
+
+
+
+def card(contenido,padding=th.PADDING_MD,on_click=None):
+
+    return ft.Container(
+        content=contenido,
+        bgcolor=th.BG_SECONDARY,
+        border_radius=th.BORDER_RADIUS,
+        margin=ft.margin.symmetric(horizontal=th.PADDING_MD),
+        expand=True,
+        padding=th.PADDING_SM,
+        shadow=ft.BoxShadow(blur_radius=12, spread_radius=1, color="#00000030"),
+        on_click=on_click
+    )
 
 """
     → 5 botones en ft.Row

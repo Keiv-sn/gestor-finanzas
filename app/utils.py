@@ -45,3 +45,7 @@ def lista_meses():
         meses.append(f"{nuevo_anio}-{nuevo_mes:02}")
         
     return meses
+
+
+def formatear_moneda(amount):# Podria ir en utils.py, pero como es una función muy usada, la dejo acá por ahora.
+    return f"${amount:,.0f}".replace(",", ".")
