@@ -153,17 +153,15 @@ def crear_usuario(username, password, email):
             conn.close()
 
 
-def obtener_usuario_email(email):
+def obtener_usuario(identificador):# Permite obtener un usuario por su email o username, ignorando mayúsculas o minúsculas
     conn = None
 
     try:
         conn = get_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM users WHERE email = ?", (email,))
+        cursor.execute("SELECT * FROM users WHERE LOWER(email) = LOWER(?) OR LOWER(username) = LOWER(?)", (identificador, identificador)) # Permite iniciar sesión con mayúsculas o minúsculas en el email o username
         user = cursor.fetchone()# Devuelve un diccionario con los datos del usuario o None si no se encuentra
         return user # Devuelve el usuario encontrado o None si no se encuentra
-    
-
     
 
     finally:# Cierra la conexión a la base de datos

@@ -1,5 +1,5 @@
 from app.database import verificar_password
-from app.database import obtener_usuario_email    
+from app.database import obtener_usuario
 import json
 from pathlib import Path
 from app.database import APP_DIR, obtener_usuario_por_id
@@ -8,9 +8,9 @@ current_user = None
 SESSION_PATH = APP_DIR/"session.json"
 
 
-def iniciar_sesion(email, password):
+def iniciar_sesion(identificador, password):#identificador puede ser email o username
     global current_user
-    user = obtener_usuario_email(email)
+    user = obtener_usuario(identificador)
     if user and verificar_password(password, user['password_hash']):
         current_user = user
 

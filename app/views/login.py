@@ -1,5 +1,6 @@
 import flet as ft
-from app.auth import iniciar_sesion
+from app.auth import iniciar_sesion, obtener_usuario_activo
+from app.database import crear_cuenta, obtener_cuentas
 import app.theme as th
 
 def login_view(page, navegar, volver):
@@ -12,13 +13,21 @@ def login_view(page, navegar, volver):
 
     def validar_login(e):
       
-        if "@" not in texto_email.value or not texto_password.value:
+        if not texto_email.value.strip() or not texto_password.value: # Validación básica para campos vacíos
             mensaje_error.value = "Por favor, completa todos los campos."
             mensaje_error.visible = True
             page.update()
             return
 
         if iniciar_sesion(texto_email.value, texto_password.value):
+
+            usuario = obtener_usuario_activo()
+
+            cuentas = obtener_cuentas(usuario["id"])
+
+            if len(cuentas) == 0:
+                crear_cuenta(usuario["id"],"Cuenta Principal","efectivo",0)
+            
             navegar("dashboard", limpiar=True)
         else:
             mensaje_error.value = "Credenciales incorrectas. Inténtalo de nuevo."

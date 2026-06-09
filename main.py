@@ -8,10 +8,16 @@ from app.views.budgets import budgets_view
 from app.views.register import register_view
 import flet as ft
 import app.theme as th
-
+import os
 
 
 def main(page: ft.Page):
+
+    
+    DEBUG_RESET = False  # cambia a True cuando quieras resetear sesión
+    if DEBUG_RESET:
+        from app.auth import cerrar_sesion
+        cerrar_sesion()
 
     #page.scroll = ft.ScrollMode.AUTO # Esta en veremos hace que le login se vea pegado arriba 
     
