@@ -127,12 +127,14 @@ def obtener_resumen_ahorro(user_id):
     return resumen
 
 
-
-"""
-Header        →  "Hola, {username} 👋"  +  ícono cerrar sesión
-Caja balance  →  saldo total grande
-Caja ahorro   →  primer objetivo con barra de progreso
-Fila doble    →  gastos por categoría (barras)  |  transacciones recientes
-Banner alerta →  si hay presupuesto sobre 80% de uso
-Navbar        →  5 botones fijos abajo
-"""
+def agrupar_por_categoria(transacciones): # por si acaso necesito agrupart las transacciones en algun momento     
+    
+    grupos = {}
+    
+    for t in transacciones:
+        nombre = t["category_name"] or "Sin categoría"
+        if nombre not in grupos:
+            grupos[nombre] = []
+        grupos[nombre].append(t)
+    
+    return grupos

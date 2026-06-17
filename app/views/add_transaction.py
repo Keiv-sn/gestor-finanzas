@@ -5,7 +5,7 @@ from app.auth import obtener_usuario_activo
 from app.database import obtener_cuentas, obtener_categorias, crear_transaccion
 import app.theme as th
 import flet as ft
-from app.components import card
+from app.components import card, mostrar_error
 from app.utils import formatear_moneda
 
 
@@ -14,27 +14,7 @@ from app.utils import formatear_moneda
 
 def add_transaction_view(page, navegar, volver):
 
-    def mostrar_error(mensaje):
-
-        snack = ft.SnackBar(
-            content=ft.Text(
-                mensaje,
-                color=th.TEXT_PRIMARY,
-                size=th.FONT_SIZE_MD,
-                font_family=th.FONT
-            ),
-            bgcolor=th.COLOR_ALERTA,  # rojo de tu sistema
-            behavior=ft.SnackBarBehavior.FLOATING,
-            shape=ft.RoundedRectangleBorder(
-                radius=ft.border_radius.all(th.BORDER_RADIUS)
-            ),
-            duration=3000
-        )
-
-        page.snack_bar = snack
-        page.add(snack)
-        snack.open = True
-        page.update()
+    
 
 
     def guardar_transaccion():
@@ -48,7 +28,7 @@ def add_transaction_view(page, navegar, volver):
             not categoria or
             not cuenta
         ):
-            mostrar_error("No se pudo guardar. Complete todos los campos.")
+            mostrar_error(page, "No se pudo guardar. Complete todos los campos.")
             print("ERROR: campos incompletos")
             return
 
@@ -70,7 +50,7 @@ def add_transaction_view(page, navegar, volver):
         if exito:
             navegar("dashboard", limpiar=False)
         else:
-            mostrar_error(mensaje)
+            mostrar_error(page, mensaje)
 
         
 

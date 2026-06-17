@@ -49,3 +49,28 @@ def lista_meses():
 
 def formatear_moneda(amount):# Podria ir en utils.py, pero como es una función muy usada, la dejo acá por ahora.
     return f"${amount:,.0f}".replace(",", ".")
+
+
+
+def obtener_meses_presupuesto(meses_atras=3, meses_adelante=8):
+
+    hoy = datetime.now()
+
+    meses = []
+
+    for i in range(-meses_atras, meses_adelante + 1):
+
+        año = hoy.year
+        mes = hoy.month + i
+
+        while mes < 1:
+            mes += 12
+            año -= 1
+
+        while mes > 12:
+            mes -= 12
+            año += 1
+
+        meses.append(f"{mes:02d}/{año}")
+
+    return meses

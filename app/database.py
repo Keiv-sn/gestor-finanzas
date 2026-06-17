@@ -364,7 +364,16 @@ def obtener_transacciones(user_id, month = None, date_from = None, date_to = Non
         conn= get_connection()
         cursor = conn.cursor()
 
-        query = "SELECT * FROM transactions WHERE user_id = ?"
+        query = """
+            SELECT
+                t.*,
+                c.name AS category_name
+            FROM transactions t
+            LEFT JOIN categories c
+                ON t.category_id = c.id
+            WHERE t.user_id = ?
+                """
+        
         params = [user_id]
 
         if month is not None:
@@ -671,6 +680,24 @@ def eliminar_presupuesto(id):
             conn.close()
 
 
+def obtener_meses_con_transacciones(user_id):
+
+    conn = None
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        cursor.execute("""SELECT DISTINCT strftime('%m/%Y', date) FROM transactions WHERE user_id = ? ORDER BY date DESC""", (user_id,))
+
+        return [fila[0] for fila in cursor.fetchall()]
+
+    except sqlite3.Error as e:
+        print(f"Error: {e}")
+        return []
+
+    finally:
+        if conn:
+            conn.close()
 
 
 

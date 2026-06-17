@@ -57,8 +57,8 @@ def main(page: ft.Page):
             page.add(transactions_view(page, navegar, volver))
         elif nombre_vista == "budgets":
             page.add(budgets_view(page, navegar, volver))
-#        elif nombre_vista == "settings":
-#            page.add(settings_view(page, navegar, volver))
+        elif nombre_vista == "settings":
+            page.add(settings_view(page, navegar, volver))
 
         page.update()
 

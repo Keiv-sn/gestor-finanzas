@@ -1,5 +1,6 @@
 import flet as ft
 import flet_charts as fch
+from app.database import eliminar_presupuesto
 from app.theme import BG_PRIMARY,BG_SECONDARY,TEXT_SECONDARY, ACCENT_GREEN,TEXT_PRIMARY
 import app.theme as th
 from app.utils import formatear_moneda
@@ -137,24 +138,151 @@ def fila_transaccion(t):
     )
 
 
+def card_fila_transaccion(t):
 
-def card(contenido,padding=th.PADDING_MD,on_click=None):
+    es_ingreso = t["transaction_type"] == "ingreso"
+
+    color = (
+        th.COLOR_INGRESO
+        if es_ingreso
+        else th.COLOR_GASTO
+    )
+
+    signo = "+" if es_ingreso else "-"
+
+    return card(
+        ft.Row(
+            [
+                ft.Column(
+                    [
+                        ft.Text(
+                            t["description"] or "Sin descripción",
+                            color=th.TEXT_PRIMARY,
+                            overflow=ft.TextOverflow.ELLIPSIS,
+                            max_lines=1,
+                            expand=True
+                        ),
+
+                        ft.Text(
+                            f'{t["category_name"]} • {t["date"]}',
+                            color=th.TEXT_SECONDARY,
+                            size=th.FONT_SIZE_SM,
+                            overflow=ft.TextOverflow.ELLIPSIS,
+                            max_lines=1,
+                            expand=True
+                        ),
+                    ],
+                    expand=True,
+                ),
+
+                ft.Text(
+                    f"{signo}{formatear_moneda(t['amount'])}",
+                    color=color,
+                    weight="w600",
+                ),
+            ],
+            alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+        )
+    )
+
+
+
+
+
+
+def card_presupuesto(p, on_delete):
+
+    gastado = p["total_spent"]
+    limite = p["amount_limit"]
+
+    porcentaje = (gastado / limite) if limite > 0 else 0
+    restante = limite - gastado
+
+    if porcentaje < 0.70:
+        color = th.ACCENT_GREEN
+    elif porcentaje < 0.90:
+        color = th.ACCENT_YELLOW
+    elif porcentaje < 1:
+        color = th.ACCENT_ORANGE
+    else:
+        color = th.ACCENT_RED
+
+    return card(
+        ft.Column(
+            [
+                ft.Row(
+                    [
+                        ft.Text(
+                            p["category_name"],
+                            color=th.TEXT_PRIMARY,
+                            weight="w600",
+                        ),
+
+                         ft.IconButton(
+                            icon=ft.Icons.DELETE_OUTLINE,icon_color=th.ACCENT_ORANGE,
+                            tooltip="Eliminar presupuesto",on_click=lambda e: on_delete(p["id"]),
+                        ),
+                    ],
+                    alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                ),
+
+                ft.Text(
+                    f"{formatear_moneda(gastado)} / {formatear_moneda(limite)}",
+                    color=th.TEXT_PRIMARY,
+                ),
+
+                ft.ProgressBar(
+                    value=min(porcentaje, 1),
+                    color=color,
+                    bgcolor=th.BG_PRIMARY,
+                ),
+
+                ft.Text(
+                    f"Restante: {formatear_moneda(restante)}"
+                    if restante >= 0
+                    else f"Excedido: {formatear_moneda(abs(restante))}",
+                    color=th.TEXT_SECONDARY,
+                    size=th.FONT_SIZE_SM,
+                ),
+            ],
+            spacing=8,
+        )
+    )
+
+
+
+def card(contenido,padding=th.PADDING_MD,on_click=None, margin=True):
 
     return ft.Container(
         content=contenido,
         bgcolor=th.BG_SECONDARY,
         border_radius=th.BORDER_RADIUS,
-        margin=ft.margin.symmetric(horizontal=th.PADDING_MD),
-        expand=True,
+        margin=ft.margin.symmetric(horizontal=th.PADDING_MD) if margin else None,
         padding=th.PADDING_SM,
         shadow=ft.BoxShadow(blur_radius=12, spread_radius=1, color="#00000030"),
         on_click=on_click
     )
 
-"""
-    → 5 botones en ft.Row
-    → cada botón tiene ícono + label
-    → el botón activo se ve destacado (color distinto)
-    → el botón + es visualmente diferente (más grande, color acento)
-    → fijo en la parte inferior de la pantalla
-"""
+
+
+def mostrar_error(page, mensaje):
+
+    snack = ft.SnackBar(
+        content=ft.Text(
+            mensaje,
+            color=th.TEXT_PRIMARY,
+            size=th.FONT_SIZE_MD,
+            font_family=th.FONT,
+        ),
+        bgcolor=th.COLOR_ALERTA,
+        behavior=ft.SnackBarBehavior.FLOATING,
+        shape=ft.RoundedRectangleBorder(
+            radius=ft.border_radius.all(th.BORDER_RADIUS),
+        ),
+        duration=3000,
+    )
+
+    page.snack_bar = snack
+    page.add(snack)
+    snack.open = True
+    page.update()

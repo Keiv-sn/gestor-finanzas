@@ -19,7 +19,7 @@ def dashboard_view(page, navegar, volver):
     gastos = obtener_gastos_por_categoria(usuario["id"], mes)
 
     transacciones = obtener_transacciones(user_id=usuario["id"], month=mes)
-    ultimas = transacciones[:5]  # últimas 5
+    ultimas = transacciones[:4]  # últimas 4
 
     top_gastos = gastos[:4] # obtenemos solo las 4 categorías con más gastos para mostrar en el gráfico
 
