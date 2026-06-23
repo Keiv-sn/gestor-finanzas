@@ -6,6 +6,7 @@ from app.database import obtener_cuentas
 from app.database import obtener_presupuestos
 from app.database import obtener_categorias
 from app.database import obtener_objetivos_ahorro
+from app.utils import lista_meses
 
 def obtener_resumen(user_id, month):
 
@@ -138,3 +139,22 @@ def agrupar_por_categoria(transacciones): # por si acaso necesito agrupart las t
         grupos[nombre].append(t)
     
     return grupos
+
+
+
+def obtener_comparativa(user_id, meses=6):
+
+    comparativa = []
+
+    for month in lista_meses()[:meses]:
+
+        resumen = obtener_resumen(user_id, month)
+
+        comparativa.append({
+            "mes": month,
+            "ingresos": resumen["ingresos"],
+            "gastos": resumen["gastos"],
+            "balance": resumen["balance_neto_mensual"],
+        })
+
+    return comparativa

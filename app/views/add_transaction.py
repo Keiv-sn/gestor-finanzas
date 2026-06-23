@@ -338,21 +338,3 @@ def add_transaction_view(page, navegar, volver):
 
     return contenido
 
-
-"""
-┌────────────────────┐
-│ ← Nueva Transacción│
-│                    │
-│ [Gasto][Ingreso]   │
-│                    │
-│      $ 25.000      │
-│                    │
-│ [ Categoría ▼ ]    │
-│ [ Descripción ]    │
-│ [ Cuenta ▼ ]       │
-│ [ Fecha ▼ ]        │
-│                    │
-│ [ Guardar ]        │
-└────────────────────┘
-
-"""

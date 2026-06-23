@@ -6,6 +6,9 @@ from app.views.add_transaction import add_transaction_view
 from app.views.transactions import transactions_view
 from app.views.budgets import budgets_view
 from app.views.register import register_view
+from app.views.settings import settings_view
+from app.views.savings import savings_view
+from app.views.reports import report_view
 import flet as ft
 import app.theme as th
 import os
@@ -59,6 +62,11 @@ def main(page: ft.Page):
             page.add(budgets_view(page, navegar, volver))
         elif nombre_vista == "settings":
             page.add(settings_view(page, navegar, volver))
+        elif nombre_vista == "savings":
+            page.add(savings_view(page, navegar, volver))
+        elif nombre_vista == "reports":
+            page.add(report_view(page, navegar, volver))
+
 
         page.update()
 

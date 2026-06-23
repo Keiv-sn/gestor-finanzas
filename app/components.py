@@ -4,6 +4,7 @@ from app.database import eliminar_presupuesto
 from app.theme import BG_PRIMARY,BG_SECONDARY,TEXT_SECONDARY, ACCENT_GREEN,TEXT_PRIMARY
 import app.theme as th
 from app.utils import formatear_moneda
+from datetime import datetime
 
 
 
@@ -248,6 +249,104 @@ def card_presupuesto(p, on_delete):
             spacing=8,
         )
     )
+
+
+
+
+def card_objetivo(objetivo, on_delete, on_aportar):
+
+
+    fecha = (
+        datetime.strptime(objetivo["deadline"], "%Y-%m-%d").strftime("%d/%m/%Y")
+        if objetivo["deadline"]
+        else "")
+
+    ahorrado = objetivo["current_amount"]
+    meta = objetivo["target_amount"]
+
+    porcentaje = (ahorrado / meta) if meta > 0 else 0
+    restante = meta - ahorrado
+
+    if porcentaje <  0.25:
+        color = th.ACCENT_RED
+    elif porcentaje < 0.50:
+        color = th.ACCENT_ORANGE
+    elif porcentaje <  0.75:
+        color = th.ACCENT_YELLOW
+    else:
+        color = th.ACCENT_GREEN
+
+    if restante > 0:
+        texto = f"Faltan {formatear_moneda(restante)}"
+    else:
+        texto = "🎉 ¡Meta alcanzada!"
+
+    return card(
+        ft.Column(
+            [
+                ft.Row(
+                    [
+                        ft.Text(
+                            objetivo["name"],
+                            expand=True,
+                            color=th.TEXT_PRIMARY,
+                            weight="w600",
+                        ),
+
+                        ft.Text(
+                            f"📅 {fecha}",
+                            color=th.TEXT_SECONDARY,
+                            size=th.FONT_SIZE_SM,
+                            visible=objetivo["deadline"] is not None,
+                        ),
+
+                        ft.Text(
+                            f"{porcentaje:.0%}",
+                            color=th.TEXT_SECONDARY,
+                            weight="w600",
+                        ),
+
+
+                         ft.IconButton(
+                            icon=ft.Icons.DELETE_OUTLINE,icon_color=th.ACCENT_ORANGE,
+                            tooltip="Eliminar objetivo",on_click=lambda e: on_delete(objetivo["id"]),
+                        ),
+                    ],
+                    alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                ),
+
+                ft.Text(
+                    f"{formatear_moneda(ahorrado)} / {formatear_moneda(meta)}",
+                    color=th.TEXT_PRIMARY,
+                ),
+
+                ft.ProgressBar(
+                    value=min(porcentaje, 1),
+                    color=color,
+                    bgcolor=th.BG_PRIMARY,
+                ),
+                ft.Text(
+                    texto,
+                    color=th.TEXT_SECONDARY,
+                    size=th.FONT_SIZE_SM,
+                ),
+
+                ft.Row(
+                    [
+                        ft.ElevatedButton(
+                            "Aportar",
+                            icon=ft.Icons.ADD,
+                            on_click=lambda e: on_aportar(objetivo),
+                        )
+                    ],
+                    alignment=ft.MainAxisAlignment.END,
+                )
+
+            ],
+            spacing=8,
+        )
+    )
+
 
 
 
