@@ -1,6 +1,6 @@
 from app.auth import obtener_usuario_activo
 from app.components import navbar, grafico_gastos, fila_transaccion
-from app.logic import obtener_gastos_por_categoria, obtener_resumen, obtener_resumen_ahorro
+from app.logic import obtener_gastos_por_categoria, obtener_resumen, obtener_resumen_ahorro, obtener_alerta_limite 
 from app.utils import obtener_mes_actual
 from app.database import obtener_transacciones
 from app.utils import formatear_moneda
@@ -33,9 +33,10 @@ def dashboard_view(page, navegar, volver):
         # Este es el contenedor que REEMPLAZA al ft.Text
         bloque_ahorro = ft.Container(
             expand=True,
-            bgcolor=th.ACCENT_RED,
+            bgcolor=th.BG_SECONDARY,
             border_radius=th.BORDER_RADIUS,
             padding=th.PADDING_MD,
+            height=90,
             content=ft.Column([
                 ft.Text("Objetivos de Ahorro", size=th.FONT_SIZE_MD , color=th.TEXT_SECONDARY),
                 ft.Row([
@@ -45,7 +46,7 @@ def dashboard_view(page, navegar, volver):
                 # Barra de progreso manual 
                 ft.ProgressBar(
                     value=primer_objetivo['porcentaje'] / 100, 
-                    bgcolor=th.ACCENT_YELLOW,
+                    bgcolor=th.BG_PRIMARY,
                     color=th.ACCENT_YELLOW,
                     border_radius=10,
                     height=8
@@ -55,6 +56,46 @@ def dashboard_view(page, navegar, volver):
         )
     else:
         bloque_ahorro = ft.Container(content=ft.Text("", color=th.TEXT_SECONDARY))
+
+
+
+    alerta_limite  = obtener_alerta_limite( usuario["id"], mes)
+
+
+    if alerta_limite:
+
+        bloque_limite = ft.Container(
+            bgcolor=th.BG_SECONDARY,
+            border_radius=th.BORDER_RADIUS,
+            padding=th.PADDING_MD,
+            content=ft.Column(
+                [
+                    ft.Text(
+                        "Límite de presupuesto",
+                        size=th.FONT_SIZE_MD,
+                        color=th.TEXT_SECONDARY,
+                    ),
+
+                    ft.Text(
+                        f"{alerta_limite['categoria']} ha alcanzado el "
+                        f"{alerta_limite['porcentaje']}% del presupuesto.",
+                        color=th.TEXT_PRIMARY,
+                    ),
+
+                    ft.ProgressBar(
+                        value=alerta_limite["porcentaje"] / 100,
+                        color=th.ACCENT_RED,
+                        bgcolor=th.BG_PRIMARY,
+                        height=8,
+                        border_radius=10,
+                    ),
+                ],
+                spacing=8,
+            ),
+        )
+
+    else:
+        bloque_limite = None
 
     #Contenido dashboard(bento)
 
@@ -72,7 +113,11 @@ def dashboard_view(page, navegar, volver):
                 content=ft.Column([
                     ft.Text("Balance Total", size=th.FONT_SIZE_MD, color=th.TEXT_SECONDARY),
                     ft.Text(formatear_moneda(resumen["saldo_total_cuentas"]), size=th.FONT_SIZE_XL, color=th.ACCENT_YELLOW)
-                    ], spacing=2)
+                    ], 
+                    spacing=2,
+                    horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+
+                    )
             ),
 
 
@@ -101,18 +146,13 @@ def dashboard_view(page, navegar, volver):
                         ),
                         
                         
-                        ft.Row([
-                            ft.Column(controls=datos_grafico["puntos"], spacing=12, horizontal_alignment=ft.CrossAxisAlignment.CENTER),
-
-                            ft.Column(controls=datos_grafico["nombres"], spacing=10, expand=True),
-
-                            ft.Column(controls=datos_grafico["porcentajes"], spacing=10, horizontal_alignment=ft.CrossAxisAlignment.END),
-
-                            ],alignment=ft.MainAxisAlignment.START, vertical_alignment=ft.CrossAxisAlignment.START)
-                        ])
-                        
-                    ),
-                        
+                        ft.Column(
+                            controls=datos_grafico["leyenda"],
+                            spacing=8,
+                        ),
+                    ]
+                ),
+            ),
                 ft.Container(
                     expand=1,
                     bgcolor=th.BG_SECONDARY,
@@ -133,9 +173,11 @@ def dashboard_view(page, navegar, volver):
             ]),
 
 
-            ft.Container(content=ft.Text("Limite")),
+            *([bloque_limite] if bloque_limite else []),
 
-            ft.Container(height=40) # Espacio para que la nav no tape nada
+
+
+            ft.Container(height=10) # Espacio para que la nav no tape nada
         ],
 
         scroll=ft.ScrollMode.AUTO,
@@ -150,7 +192,12 @@ def dashboard_view(page, navegar, volver):
                 # EL CUERPO: Usamos padding abajo para que el contenido NUNCA quede detrás de la nav
                 ft.Container(
                     content=contenido, 
-                    padding=ft.padding.only(bottom=85), # Ajusta este número al alto de tu navbar
+                        padding=ft.padding.only(
+                            left=th.PADDING_MD,
+                            right=th.PADDING_MD,
+                            top=th.PADDING_SM,
+                            bottom=85,
+                            ),
                     expand=True
                 ),
                 

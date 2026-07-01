@@ -1,9 +1,11 @@
 
 from app.components import mostrar_error, navbar
 from app.auth import obtener_usuario_activo
-from app.logic import obtener_comparativa, obtener_gastos_por_categoria, obtener_resumen, obtener_resumen_ahorro, lista_meses
-from app.components import grafico_gastos, card, formatear_moneda
+from app.logic import obtener_comparativa, obtener_gastos_por_categoria, obtener_resumen, lista_meses, exportar_csv, exportar_excel
+from app.components import grafico_gastos, card, formatear_moneda, mostrar_exito
+import csv
 import flet as ft
+import flet_charts as fch
 import app.theme as th
 
 
@@ -13,9 +15,49 @@ import app.theme as th
 def report_view(page, navegar, volver):
 
 
+
     usuario = obtener_usuario_activo()
 
     meses = lista_meses()
+
+    def archivo_seleccionado(e):
+        if not e.path:
+            return
+        print(e.path)
+
+
+    async def guardar_excel(e):
+
+        ruta = await file_picker.save_file(
+            file_name=f"reporte_{dropdown_mes.value}.xlsx"
+        )
+
+        if ruta is None:
+            return
+
+        exportar_excel(
+            usuario["id"],
+            dropdown_mes.value,
+            ruta
+        )
+
+        mostrar_exito(page, "Archivo Excel exportado correctamente.")
+
+
+
+    async def guardar_csv(e):
+
+        ruta = await file_picker.save_file(
+            file_name=f"reporte_{dropdown_mes.value}.csv"
+        )
+
+        if ruta is None:
+            return
+
+        exportar_csv( usuario["id"], dropdown_mes.value, ruta)
+
+        mostrar_exito(page, "Archivo csv exportado correctamente.")
+
 
 
     def actualizar_mes(e):
@@ -32,11 +74,32 @@ def report_view(page, navegar, volver):
             dropdown_mes.value
         )
 
+        datos_grafico = grafico_gastos(gastos)
+
         grafico.content = card(
             ft.Column(
                 [
-                    ft.Text("Gastos por categoría"),
-                    grafico_gastos(gastos)
+                    ft.Text(
+                        "Gastos por categoría",
+                        size=th.FONT_SIZE_MD,
+                        color=th.TEXT_PRIMARY,
+                    ),
+
+                    ft.Container(
+                        height=100,
+                        alignment=ft.Alignment(0, 0),
+                        content=fch.PieChart(
+                            sections=datos_grafico["secciones"],
+                            sections_space=2,
+                            center_space_radius=45,
+                            expand=True,
+                        ),
+                    ),
+
+                    ft.Column(
+                        controls=datos_grafico["leyenda"],
+                        spacing=8,
+                    ),
                 ]
             )
         )
@@ -52,7 +115,7 @@ def report_view(page, navegar, volver):
         resumen.content = card(
             ft.Column(
                 [
-                    ft.Text("Resumen del mes"),
+                    ft.Text("Resumen del mes",  size=th.FONT_SIZE_MD,color=th.TEXT_PRIMARY,),
 
                     ft.Text(f"Ingresos: {formatear_moneda(datos['ingresos'])}"),
 
@@ -77,23 +140,23 @@ def report_view(page, navegar, volver):
         )
 
         columna = comparativa.content.content
+        filas = [ft.Text("Últimos meses")]
 
         for mes in datos:
-
-            columna.controls.append(
-
+            filas.append(
                 ft.Row(
                     [
                         ft.Text(mes["mes"]),
-
-                        ft.Text(
-                            formatear_moneda(mes["balance"])
-                        )
+                        ft.Text(formatear_moneda(mes["balance"]))
                     ],
                     alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
                 )
-
             )
+
+        comparativa.content = card(
+            ft.Column(filas)
+        )
+
 
 
 
@@ -104,8 +167,14 @@ def report_view(page, navegar, volver):
         options=[ft.dropdown.Option(m) for m in meses],
         bgcolor=th.BG_SECONDARY,
         color=th.TEXT_PRIMARY,
+        text_size=th.FONT_SIZE_SM,
+        border_radius=th.BORDER_RADIUS,
+        content_padding=th.PADDING_SM,
+        margin=ft.margin.symmetric(horizontal=th.PADDING_MD),
         border_color="transparent",
         on_select=actualizar_mes,
+        height=32,
+        
     )
 
     grafico = ft.Container()
@@ -115,18 +184,18 @@ def report_view(page, navegar, volver):
     comparativa = ft.Container()
 
 
+    file_picker = ft.FilePicker()
 
 
+    boton_csv = ft.ElevatedButton(
+    "Exportar CSV",
+    on_click=guardar_csv,
+    )
 
-
-
-
-
-
-
-
-
-
+    boton_excel = ft.ElevatedButton(
+    "Exportar Excel",
+    on_click=guardar_excel,
+)
 
 
 
@@ -158,11 +227,15 @@ def report_view(page, navegar, volver):
 
 
 
-        card(dropdown_mes),
+        dropdown_mes,
+
+        ft.Container(height=0),
 
         grafico,
 
         resumen,
+
+        ft.Divider(height=1, color=th.BG_SECONDARY),
 
         comparativa,
 
@@ -173,8 +246,8 @@ def report_view(page, navegar, volver):
 
                     ft.Row(
                         [
-                            #boton_csv,
-                            #boton_excel
+                            boton_csv,
+                            boton_excel
                         ]
                     )
                 ]

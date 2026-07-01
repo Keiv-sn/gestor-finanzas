@@ -72,43 +72,61 @@ def navbar(navegar, vista_activa):
 
 def grafico_gastos(gastos):
 
-    secciones = []
+    leyenda = []
 
-    puntos_color = []
-    nombres_cat = []
-    porcentajes_cat = []
+    secciones = []
 
     colores = [th.ACCENT_ORANGE, th.TEXT_SECONDARY, th.ACCENT_YELLOW, th.ACCENT_RED, th.ACCENT_GREEN, th.BG_PRIMARY] # Paleta de colores para las categorías
 
-    for i, gasto in enumerate(gastos): # la i 
-        color_actual = colores[i % len(colores)] # Asigna un color de la paleta
+    for i, gasto in enumerate(gastos):
+        color_actual = colores[i % len(colores)]
 
-        # gasto['total'] es el valor, gasto['categoria'] el nombre
         secciones.append(
             fch.PieChartSection(
                 value=gasto["total"],
-                color=colores[i % len(colores)],# Cicla colores si hay muchas categorías
+                color=color_actual,
                 radius=15,
                 title="",
-
-                #tooltip=f"{gasto['nombre_categoria']}: {formatear_moneda(gasto['total'])} ({gasto['porcentaje']}%)"
-
             )
         )
+        leyenda.append(
+            ft.Row(
+                [
+                    ft.Container(
+                        width=7,
+                        height=7,
+                        border_radius=4,
+                        bgcolor=color_actual,
+                    ),
 
-        puntos_color.append(ft.Container(width=7, height=7, border_radius=4, bgcolor=color_actual))
-        nombres_cat.append(ft.Text(gasto["nombre_categoria"][:10], size=10, color=th.TEXT_SECONDARY, overflow=ft.TextOverflow.ELLIPSIS))
-        porcentajes_cat.append(ft.Text(f"{int(gasto['porcentaje'])}%", size=10, color="white", weight="bold"))
+                    ft.Container(
+                        ft.Text(
+                            gasto["nombre_categoria"][:10],
+                            size=10,
+                            color=th.TEXT_SECONDARY,
+                            overflow=ft.TextOverflow.ELLIPSIS,
+                        ),
+                        expand=True,
+                    ),
 
+                    ft.Text(
+                        f"{int(gasto['porcentaje'])}%",
+                        size=10,
+                        color="white",
+                        weight="bold",
+                    ),
+                ],
+                alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                vertical_alignment=ft.CrossAxisAlignment.CENTER,
+            )
+        )
 
     if not secciones:
         secciones.append(fch.PieChartSection(value=1, color=th.TEXT_SECONDARY, radius=10))
     
     return {
         "secciones": secciones,
-        "puntos": puntos_color,
-        "nombres": nombres_cat,
-        "porcentajes": porcentajes_cat
+        "leyenda": leyenda
     }
 
 
@@ -374,6 +392,29 @@ def mostrar_error(page, mensaje):
             font_family=th.FONT,
         ),
         bgcolor=th.COLOR_ALERTA,
+        behavior=ft.SnackBarBehavior.FLOATING,
+        shape=ft.RoundedRectangleBorder(
+            radius=ft.border_radius.all(th.BORDER_RADIUS),
+        ),
+        duration=3000,
+    )
+
+    page.snack_bar = snack
+    page.add(snack)
+    snack.open = True
+    page.update()
+
+
+def mostrar_exito(page, mensaje):
+
+    snack = ft.SnackBar(
+        content=ft.Text(
+            mensaje,
+            color=th.TEXT_PRIMARY,
+            size=th.FONT_SIZE_MD,
+            font_family=th.FONT,
+        ),
+        bgcolor=th.COLOR_INGRESO,
         behavior=ft.SnackBarBehavior.FLOATING,
         shape=ft.RoundedRectangleBorder(
             radius=ft.border_radius.all(th.BORDER_RADIUS),

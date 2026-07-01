@@ -464,40 +464,44 @@ def settings_view(page, navegar, volver):
 
         ft.Divider(height=1, color=th.BG_SECONDARY),
 
+        ft.Column(
+            [
 
-        obetivos_ahorro,
+            obetivos_ahorro,
 
-        ft.Divider(height=1, color=th.BG_SECONDARY),
+            ft.Divider(height=1, color=th.BG_SECONDARY),
 
-        reportes,
+            reportes,
 
-        ft.Divider(height=1, color=th.BG_SECONDARY),
-
-
-        cuentas,
-        formulario_cuenta,
-
-        ft.Divider(height=1, color=th.BG_SECONDARY),
-
-        categorias,
-        formulario_categoria,
-
-        ft.Divider(height=1, color=th.BG_SECONDARY),
+            ft.Divider(height=1, color=th.BG_SECONDARY),
 
 
-        ft.Container(expand=True),
+            cuentas,
+            formulario_cuenta,
 
+            ft.Divider(height=1, color=th.BG_SECONDARY),
 
-        ft.Container(
-            (bonton_cerrar),
-            padding=ft.padding.symmetric(horizontal=th.PADDING_MD),),
+            categorias,
+            formulario_categoria,
 
-        
+            ft.Divider(height=1, color=th.BG_SECONDARY),
 
-
+            ft.Container(expand=True),
 
             ],
-        expand=True
+            scroll=ft.ScrollMode.AUTO,
+            expand=True,
+        ),
+
+        
+        ft.Container(
+            (bonton_cerrar),
+            padding=ft.padding.symmetric(horizontal=th.PADDING_MD),
+        ),
+
+        ],
+        expand=True,
+        
     )
 
     return ft.Stack(
@@ -517,5 +521,5 @@ def settings_view(page, navegar, volver):
             height=60,
         )
     ],
-    expand=True
+    expand=True,
 )

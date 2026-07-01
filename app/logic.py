@@ -1,6 +1,7 @@
 # Aca se implementarán las funciones para manejar la lógica de la aplicación de presupuesto personal.
 # Estas funciones se encargarán de procesar los datos, realizar cálculos y preparar la información para ser mostrada en la interfaz de usuario.
-
+import csv
+from openpyxl import Workbook
 from app.database import obtener_transacciones
 from app.database import obtener_cuentas
 from app.database import obtener_presupuestos
@@ -158,3 +159,110 @@ def obtener_comparativa(user_id, meses=6):
         })
 
     return comparativa
+
+
+
+def exportar_csv(user_id, month, ruta):
+
+    transacciones = obtener_transacciones(user_id, month)
+
+    # Obtener las cuentas del usuario
+    cuentas = obtener_cuentas(user_id)
+
+    # Crear un diccionario: {id: nombre}
+    mapa_cuentas = {
+        c["id"]: c["name"]
+        for c in cuentas
+    }
+
+    with open(ruta, "w", newline="", encoding="utf-8-sig") as archivo:
+
+        writer = csv.writer(archivo)
+
+        writer.writerow([
+            "Fecha",
+            "Tipo",
+            "Categoría",
+            "Cuenta",
+            "Monto",
+            "Descripción"
+        ])
+
+        for t in transacciones:
+            writer.writerow([
+                t["date"],
+                t["transaction_type"],
+                t["category_name"],
+                mapa_cuentas.get(t["account_id"], ""),  # ← nombre de la cuenta
+                t["amount"],
+                t["description"]
+            ])
+
+
+
+def exportar_excel(user_id, month, ruta):
+
+    transacciones = obtener_transacciones(user_id, month)
+
+    cuentas = obtener_cuentas(user_id)
+
+    mapa_cuentas = {
+        c["id"]: c["name"]
+        for c in cuentas
+    }
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Transacciones"
+
+    ws.append([
+        "Fecha",
+        "Tipo",
+        "Categoría",
+        "Cuenta",
+        "Monto",
+        "Descripción"
+    ])
+
+    for t in transacciones:
+        ws.append([
+            t["date"],
+            t["transaction_type"],
+            t["category_name"],
+            mapa_cuentas.get(t["account_id"], ""),
+            t["amount"],
+            t["description"]
+        ])
+
+    wb.save(ruta)
+
+
+def obtener_alerta_limite(user_id, month):
+
+    presupuestos = obtener_presupuestos(user_id, month)
+
+    alerta = None
+    mayor_porcentaje = 90
+
+    for presupuesto in presupuestos:
+
+        if presupuesto["amount_limit"] == 0:
+            continue
+
+        porcentaje = (
+            presupuesto["total_spent"] /
+            presupuesto["amount_limit"]
+        ) * 100
+
+        if porcentaje >= mayor_porcentaje:
+
+            mayor_porcentaje = porcentaje
+
+            alerta = {
+                "categoria": presupuesto["category_name"],
+                "gastado": presupuesto["total_spent"],
+                "limite": presupuesto["amount_limit"],
+                "porcentaje": round(porcentaje)
+            }
+
+    return alerta
