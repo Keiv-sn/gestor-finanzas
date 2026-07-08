@@ -1,5 +1,9 @@
 #  Gestor de Finanzas Personales
 
+<p align="center">
+  <img src="assets/demo.gif" alt="Demo del Gestor de Finanzas" width="900">
+</p>
+
 App de escritorio para gestión de finanzas personales construida con Python y Flet. Permite registrar ingresos y gastos, visualizar presupuestos, establecer metas de ahorro y generar reportes exportables.
 
 > Proyecto personal en desarrollo activo — construido desde cero con arquitectura escalable para agregar un modo "Negocio" en versiones futuras.

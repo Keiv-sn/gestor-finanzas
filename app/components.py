@@ -144,12 +144,6 @@ def fila_transaccion(t):
                     ft.Text(t["description"], color=th.TEXT_PRIMARY, size=th.FONT_SIZE_SM),
                     ft.Text(f"{signo}{formatear_moneda(t['amount'])}", color=color_monto, size=th.FONT_SIZE_SM)
                 ]
-            ),
-            ft.Column(
-                [
-                    ft.Text(signo, color= color_monto, size= th.FONT_SIZE_MD,text_align=ft.TextAlign.RIGHT,weight="w600",)
-                ]
-            
             )
         ],
         alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
