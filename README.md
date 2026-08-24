@@ -61,11 +61,6 @@ gestor_finanzas/
 └── assets/
 ```
 
-Regla de capas:
-```
-views → logic → database
-```
-Las vistas nunca acceden directamente a la base de datos.
 
 ---
 
