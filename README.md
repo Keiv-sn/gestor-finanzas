@@ -134,7 +134,3 @@ Desarrollado por **[Keiv]**
 
 
 ---
-
-##  Licencia
-
-MIT License — libre para usar, modificar y distribuir.
